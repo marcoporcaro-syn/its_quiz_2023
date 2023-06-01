@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:its_quiz_2023/component/answer_button.dart';
 import '../data/question.dart';
 
 class QuestionPage extends StatefulWidget {
@@ -9,17 +10,13 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-  final question = Question(
-      text: "Quanti anni ha George Clooney?",
-      answers: ["50", "62", "65"],
-      rightAnswer: "62"
-  );
+  final question = Question(text: "Quanti anni ha George Clooney?", answers: ["50", "62", "65", "46", "70"], rightAnswer: "62");
 
   var displayMessage = "";
 
-  pickAnswer({givenAnswer, rightAnswer}) {
+  pickAnswer(givenAnswer) {
     var message = "Risposta sbagliata";
-    if (givenAnswer == rightAnswer) {
+    if (givenAnswer == question.rightAnswer) {
       message = "Risposta corretta";
     }
     setState(() {
@@ -30,53 +27,37 @@ class _QuestionPageState extends State<QuestionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          const SizedBox(height: 50),
-          Text(
-            question.text,
-            style: const TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            const SizedBox(height: 20),
+            Text(
+              question.text,
+              style: const TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                pickAnswer(givenAnswer: question.answers[0], rightAnswer: question.rightAnswer);
-              },
-              child: Text(question.answers[0]),
+            Column(
+              children: question.answers
+                  .map((singleAnswer) =>
+                  AnswerButton(
+                      text: singleAnswer,
+                      onClick: () => pickAnswer(singleAnswer))
+              )
+                  .toList(),
             ),
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                pickAnswer(givenAnswer: question.answers[1], rightAnswer: question.rightAnswer);
-              },
-              child: Text(question.answers[1]),
-            ),
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                pickAnswer(givenAnswer: question.answers[2], rightAnswer: question.rightAnswer);
-              },
-              child: Text(question.answers[2]),
-            ),
-          ),
-          Text(
-            displayMessage,
-            style: const TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-            ),
-          )
-        ]),
+            Text(
+              displayMessage,
+              style: const TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+            )
+          ]),
+        ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
