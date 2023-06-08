@@ -12,10 +12,10 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-
-  final question = QuestionRepository().getQuestion();
+  final questionList = QuestionRepository().getQuestions();
 
   String? givenAnswer;
+  int questionIndex = 0;
 
   pickAnswer(givenAnswer) {
     setState(() {
@@ -23,8 +23,27 @@ class _QuestionPageState extends State<QuestionPage> {
     });
   }
 
+  goToNextAnswer() {
+    setState(() {
+      if (questionIndex < questionList.length - 1 && givenAnswer != null) {
+        questionIndex++;
+        givenAnswer = null;
+      }
+    });
+  }
+
+  goToPreviousAnswer() {
+    setState(() {
+      if (questionIndex > 0 && givenAnswer != null) {
+        questionIndex--;
+        givenAnswer = null;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currentQuestion = questionList[questionIndex];
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -36,53 +55,70 @@ class _QuestionPageState extends State<QuestionPage> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset("assets/images/logo2.png",
-                  height: 100,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    "assets/images/logo2.png",
+                    height: 100,
+                  ),
                 ),
-              ),
-              Text(
-                question.text,
-                style: questionTextStyle,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 30),
-              Expanded(
-                child: Container(
+                Text(
+                  currentQuestion.text,
+                  style: questionTextStyle,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 30),
+                Expanded(
+                  child: Container(
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                  clipBehavior: Clip.hardEdge,
-                  child: Image.network(question.imageUrl),
+                    clipBehavior: Clip.hardEdge,
+                    child: Image.network(currentQuestion.imageUrl),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              ...question.answers.map((singleAnswer) {
-                var buttonStatus = AnswerButtonStatus.NOT_ANSWERED;
-                if(givenAnswer != null) {
-                  if(singleAnswer == question.rightAnswer) {
-                    buttonStatus = AnswerButtonStatus.RIGHT;
+                const SizedBox(height: 20),
+                ...currentQuestion.answers.map((singleAnswer) {
+                  var buttonStatus = AnswerButtonStatus.NOT_ANSWERED;
+                  if (givenAnswer != null) {
+                    if (singleAnswer == currentQuestion.rightAnswer) {
+                      buttonStatus = AnswerButtonStatus.RIGHT;
+                    }
+                    if (singleAnswer == givenAnswer && givenAnswer != currentQuestion.rightAnswer) {
+                      buttonStatus = AnswerButtonStatus.WRONG;
+                    }
                   }
-                  if(singleAnswer == givenAnswer && givenAnswer != question.rightAnswer) {
-                    buttonStatus = AnswerButtonStatus.WRONG;
-                  }
-                }
 
-                return AnswerButton(
-                    text: singleAnswer,
-                    status: buttonStatus,
-                    onClick: () => givenAnswer == null ? pickAnswer(singleAnswer) : null
-                );
-              }).toList(),
-              SizedBox(height: 20),
-              ElevatedButton(onPressed: () {
-                setState((){
-                  givenAnswer = null;
-                });
-              }, child: const Text("Ricomincia"))
-            ],
+                  return AnswerButton(
+                      text: singleAnswer, status: buttonStatus, onClick: () => givenAnswer == null ? pickAnswer(singleAnswer) : null);
+                }).toList(),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    if (questionIndex > 0)
+                      ElevatedButton(
+                          onPressed: () {
+                            goToPreviousAnswer();
+                          },
+                          child: const Text("Indietro")
+                      ),
+                    Expanded(
+                      child: Container(),
+                    ),
+                    if(questionIndex < questionList.length - 1)
+                    ElevatedButton(
+                        onPressed: () {
+                          goToNextAnswer();
+                        },
+                        child: const Text("Avanti")
+                    )
+                  ],
+                )
+              ],
             ),
           ),
         ),
