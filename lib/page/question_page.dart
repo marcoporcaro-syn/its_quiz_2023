@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:its_quiz_2023/component/answer_button.dart';
+import 'package:its_quiz_2023/data/question_repository.dart';
 import 'package:its_quiz_2023/theme/colors.dart';
 import 'package:its_quiz_2023/theme/text_style.dart';
-import '../data/question.dart';
 
 class QuestionPage extends StatefulWidget {
   const QuestionPage({super.key});
@@ -12,7 +12,8 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-  final question = Question(text: "Quanti anni ha George Clooney?", answers: ["50", "62", "65"], rightAnswer: "62");
+
+  final question = QuestionRepository().getQuestion();
 
   String? givenAnswer;
 
@@ -36,13 +37,28 @@ class _QuestionPageState extends State<QuestionPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
-              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset("assets/images/logo2.png",
+                  height: 100,
+                ),
+              ),
               Text(
                 question.text,
                 style: questionTextStyle,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
+              Expanded(
+                child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                    ),
+                  clipBehavior: Clip.hardEdge,
+                  child: Image.network(question.imageUrl),
+                ),
+              ),
+              const SizedBox(height: 20),
               ...question.answers.map((singleAnswer) {
                 var buttonStatus = AnswerButtonStatus.NOT_ANSWERED;
                 if(givenAnswer != null) {
@@ -60,6 +76,7 @@ class _QuestionPageState extends State<QuestionPage> {
                     onClick: () => givenAnswer == null ? pickAnswer(singleAnswer) : null
                 );
               }).toList(),
+              SizedBox(height: 20),
               ElevatedButton(onPressed: () {
                 setState((){
                   givenAnswer = null;
