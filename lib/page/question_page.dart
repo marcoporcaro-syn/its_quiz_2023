@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:its_quiz_2023/component/answer_button.dart';
+import 'package:its_quiz_2023/data/question.dart';
 import 'package:its_quiz_2023/data/question_repository.dart';
 import 'package:its_quiz_2023/theme/colors.dart';
 import 'package:its_quiz_2023/theme/text_style.dart';
@@ -12,7 +13,8 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-  final questionList = QuestionRepository().getQuestions();
+
+  final futureQuestions = QuestionRepository().getQuestions();
 
   String? givenAnswer;
   int questionIndex = 0;
@@ -25,7 +27,7 @@ class _QuestionPageState extends State<QuestionPage> {
 
   goToNextAnswer() {
     setState(() {
-      if (questionIndex < questionList.length - 1 && givenAnswer != null) {
+      if (givenAnswer != null) {
         questionIndex++;
         givenAnswer = null;
       }
@@ -34,7 +36,7 @@ class _QuestionPageState extends State<QuestionPage> {
 
   goToPreviousAnswer() {
     setState(() {
-      if (questionIndex > 0 && givenAnswer != null) {
+      if (givenAnswer != null) {
         questionIndex--;
         givenAnswer = null;
       }
@@ -42,8 +44,13 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final currentQuestion = questionList[questionIndex];
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -55,70 +62,96 @@ class _QuestionPageState extends State<QuestionPage> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image.asset(
-                    "assets/images/logo2.png",
-                    height: 100,
-                  ),
-                ),
-                Text(
-                  currentQuestion.text,
-                  style: questionTextStyle,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    clipBehavior: Clip.hardEdge,
-                    child: Image.network(currentQuestion.imageUrl),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ...currentQuestion.answers.map((singleAnswer) {
-                  var buttonStatus = AnswerButtonStatus.NOT_ANSWERED;
-                  if (givenAnswer != null) {
-                    if (singleAnswer == currentQuestion.rightAnswer) {
-                      buttonStatus = AnswerButtonStatus.RIGHT;
-                    }
-                    if (singleAnswer == givenAnswer && givenAnswer != currentQuestion.rightAnswer) {
-                      buttonStatus = AnswerButtonStatus.WRONG;
-                    }
-                  }
+            child: FutureBuilder<List<Question>>(
+              future: futureQuestions,
+              builder: (BuildContext context, AsyncSnapshot<List<Question>> snapshot) {
 
-                  return AnswerButton(
-                      text: singleAnswer, status: buttonStatus, onClick: () => givenAnswer == null ? pickAnswer(singleAnswer) : null);
-                }).toList(),
-                const SizedBox(height: 20),
-                Row(
+                debugPrint("snapshot: ${snapshot.connectionState}");
+                //while waiting for data
+                if(snapshot.connectionState != ConnectionState.done) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if(snapshot.hasError) {
+                  return const Center(child: Text(
+                      "Error while loading data",
+                      style: questionTextStyle));
+                }
+
+                final questionList = snapshot.data;
+                if(questionList == null) {
+                  return const Center(child: Text("No questions found ",
+                  style: questionTextStyle,));
+                }
+
+                final currentQuestion = questionList[questionIndex];
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (questionIndex > 0)
-                      ElevatedButton(
-                          onPressed: () {
-                            goToPreviousAnswer();
-                          },
-                          child: const Text("Indietro")
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.asset(
+                        "assets/images/logo2.png",
+                        height: 100,
                       ),
-                    Expanded(
-                      child: Container(),
                     ),
-                    if(questionIndex < questionList.length - 1)
-                    ElevatedButton(
-                        onPressed: () {
-                          goToNextAnswer();
-                        },
-                        child: const Text("Avanti")
+                    Text(
+                      currentQuestion.text,
+                      style: questionTextStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 30),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        clipBehavior: Clip.hardEdge,
+                        child: Image.network(currentQuestion.imageUrl),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ...currentQuestion.answers.map((singleAnswer) {
+                      var buttonStatus = AnswerButtonStatus.NOT_ANSWERED;
+                      if (givenAnswer != null) {
+                        if (singleAnswer == currentQuestion.rightAnswer) {
+                          buttonStatus = AnswerButtonStatus.RIGHT;
+                        }
+                        if (singleAnswer == givenAnswer && givenAnswer != currentQuestion.rightAnswer) {
+                          buttonStatus = AnswerButtonStatus.WRONG;
+                        }
+                      }
+
+                      return AnswerButton(
+                          text: singleAnswer, status: buttonStatus, onClick: () => givenAnswer == null ? pickAnswer(singleAnswer) : null);
+                    }).toList(),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        if (questionIndex > 0)
+                          ElevatedButton(
+                              onPressed: () {
+                                goToPreviousAnswer();
+                              },
+                              child: const Text("Indietro")
+                          ),
+                        Expanded(
+                          child: Container(),
+                        ),
+                        if(questionIndex < questionList.length - 1)
+                          ElevatedButton(
+                              onPressed: () {
+                                goToNextAnswer();
+                              },
+                              child: const Text("Avanti")
+                          )
+                      ],
                     )
                   ],
-                )
-              ],
+                );
+
+              }
             ),
           ),
         ),

@@ -1,8 +1,9 @@
 import 'package:its_quiz_2023/data/question.dart';
 
 class QuestionRepository {
-  List<Question> getQuestions() {
-    return [
+
+  Future<List<Question>> getQuestions() async {
+    final list = [
       Question(
           text: "Quanti anni ha George Clooney?",
           answers: ["50", "62", "65"],
@@ -19,5 +20,12 @@ class QuestionRepository {
           rightAnswer: "troppo",
           imageUrl: "https://petfamily.it/wp-content/uploads/2020/12/documenti_tartarughe.jpg")
     ];
+
+    // We can await for the Future to complete and then return the list.
+    //This will work in an async method only
+    await Future.delayed(const Duration(seconds: 2));
+    return list;
+
+    // return Future.delayed(const Duration(seconds: 2), () => list);
   }
 }
