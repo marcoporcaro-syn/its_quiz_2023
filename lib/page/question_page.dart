@@ -13,7 +13,7 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-  final _futureQuestions = QuestionRepository().getQuestions();
+  final _futureQuestions = QuestionRepository().getQuestionsFromApi();
   String? _givenAnswer;
   int _questionIndex = 0;
   int _questionSize = 0;
@@ -58,6 +58,7 @@ class _QuestionPageState extends State<QuestionPage> {
                   }
 
                   if (snapshot.hasError) {
+                    debugPrint("snapshot: ${snapshot.error}");
                     return const Center(child: Text("Error while loading data", style: questionTextStyle));
                   }
 

@@ -1,9 +1,9 @@
 class Question {
 
-  final String text;
-  final List<String> answers;
-  final String rightAnswer;
-  final String imageUrl;
+  late String text;
+  late List<String> answers;
+  late String rightAnswer;
+  late String imageUrl;
 
   Question({
     required this.text,
@@ -11,5 +11,12 @@ class Question {
     required this.rightAnswer,
     required this.imageUrl
   });
+
+  Question.fromJson(Map<String, dynamic> json) {
+    text = json['text'];
+    answers = json['answers'].cast<String>();
+    rightAnswer = json['rightAnswer'];
+    imageUrl = json['imageUrl'];
+  }
 
 }
