@@ -1,8 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:its_quiz_2023/data/question.dart';
+import 'package:http/http.dart' as http;
 
 class QuestionRepository {
 
   Future<List<Question>> getQuestions() async {
+    getQuestionsFromApi();
+
     final list = [
       Question(
           text: "Quanti anni ha George Clooney?",
@@ -28,4 +32,11 @@ class QuestionRepository {
 
     // return Future.delayed(const Duration(seconds: 2), () => list);
   }
+
+  getQuestionsFromApi() async {
+    final uri = Uri.parse("https://run.mocky.io/v3/00f2c5c5-a855-4d18-9726-860b25317485");
+    final response = await http.get(uri);
+    debugPrint(response.body);
+  }
+
 }
