@@ -1,10 +1,11 @@
 import 'dart:convert';
-
-import 'package:flutter/material.dart';
 import 'package:its_quiz_2023/data/question.dart';
 import 'package:http/http.dart' as http;
 
 class QuestionRepository {
+
+  static const baseUrl = "https://run.mocky.io/v3/";
+  static const questionUrl = "${baseUrl}a632ffc7-ba58-4721-8df7-8cb131da54bb";
 
   Future<List<Question>> getLocalQuestions() async {
     final list = [
@@ -34,11 +35,17 @@ class QuestionRepository {
   }
 
   Future<List<Question>> getQuestionsFromApi() async {
-    final uri = Uri.parse("https://run.mocky.io/v3/00f2c5c5-a855-4d18-9726-860b25317485");
+    //endpoint
+    final uri = Uri.parse(questionUrl);
+    //make the api call and store it in a response variable
     final response = await http.get(uri);
+    //response body is a string
     final jsonString = response.body;
+    //decode the string into a map
     final responseMap = jsonDecode(jsonString);
+    //convert the map into a list of Question objects
     final questionList = responseMap.map((json) => Question.fromJson(json)).toList().cast<Question>();
+    //return the Question list
     return questionList;
   }
 
