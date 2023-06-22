@@ -6,17 +6,26 @@ import 'package:its_quiz_2023/theme/colors.dart';
 import 'package:its_quiz_2023/theme/text_style.dart';
 
 class QuestionPage extends StatefulWidget {
-  const QuestionPage({super.key});
+  final String category;
+
+  const QuestionPage({super.key, required this.category});
 
   @override
   State<QuestionPage> createState() => _QuestionPageState();
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-  final _futureQuestions = QuestionRepository().getQuestionsFromApi();
+
+  late Future<List<Question>> _futureQuestions;
   String? _givenAnswer;
   int _questionIndex = 0;
   int _questionSize = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureQuestions = QuestionRepository().getQuestions(widget.category);
+  }
 
   _pickAnswer(givenAnswer) {
     setState(() {

@@ -11,36 +11,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   String category = "";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            const Text("Benvenuto!"),
-            const Text("Prima di iniziare scegli una categoria"),
-            ElevatedButton(
-                onPressed: () async {
-                  final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CategoryPage())
-                  );
-                  setState(() {
-                    category = result;
-                  });
-                },
-                child: const Text("Scegli categoria")
-            ),
-            Text("Categoria scelta: $category"),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const QuestionPage()));
-                },
-                child: const Text("Inizia"))
-          ],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Benvenuto!"),
+              const Text("Prima di iniziare scegli una categoria"),
+              ElevatedButton(
+                  onPressed: () async {
+                    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CategoryPage()));
+                    setState(() {
+                      category = result;
+                    });
+                  },
+                  child: Text(category.isEmpty ? "Scegli una categoria" : "Cambia categoria")),
+              if (category.isNotEmpty) Text("Categoria scelta: $category"),
+              if (category.isNotEmpty)
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => QuestionPage(category: category))
+                      );
+                    },
+                    child: const Text("Inizia"))
+            ],
+          ),
         ),
       ),
     );
