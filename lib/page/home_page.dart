@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:its_quiz_2023/data/category_repository.dart';
 import 'package:its_quiz_2023/page/category_page.dart';
 
 import 'question_page.dart';
@@ -12,6 +13,18 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String category = "";
+
+  @override
+  void initState() {
+    super.initState();
+    CategoryRepository().readCategoryFromStorage().then((value) {
+      if(value != null && value != category) {
+        setState(() {
+          category = value;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,4 +59,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+
 }

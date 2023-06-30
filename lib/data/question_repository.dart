@@ -5,18 +5,6 @@ import 'package:http/http.dart' as http;
 class QuestionRepository {
 
   static const baseUrl = "https://its2023-quiz-default-rtdb.europe-west1.firebasedatabase.app/questions/";
-  static const categoriesUrl = "${baseUrl}categories.json";
-
-
-  Future<List<String>> getCategories() async {
-    final uri = Uri.parse(categoriesUrl);
-    final response = await http.get(uri);
-    final jsonString = response.body;
-    final responseMap = jsonDecode(jsonString);
-    final categoriesList = responseMap.cast<String>();
-    return categoriesList;
-  }
-
 
   Future<List<Question>> getQuestions(String category) async {
     //endpoint
